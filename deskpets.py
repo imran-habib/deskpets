@@ -2,6 +2,7 @@
 """
 DeskPets - Lightweight desktop widgets for Windows 11.
 """
+import atexit
 import os
 import sys
 import threading
@@ -9,9 +10,19 @@ import tkinter as tk
 from tkinter import ttk
 
 from base import load_config, save_config
+from single_instance import ensure_single_instance, cleanup_lock
 from widgets import ALL_WIDGETS
 
 ICON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "deskpets.ico")
+
+# Will be set after GUI is created
+_show_callback = None
+
+
+def _on_show_signal():
+    """Called when a second instance tries to launch."""
+    if _show_callback:
+        _show_callback()
 
 
 class DeskPetsApp:
@@ -209,10 +220,14 @@ class DeskPetsApp:
         self.root.after(0, self.root.destroy)
 
     def run(self):
+        global _show_callback
+        _show_callback = lambda: self.root.after(0, self.root.deiconify)
         self.root.protocol("WM_DELETE_WINDOW", self._hide_to_tray)
+        atexit.register(cleanup_lock, "deskpets")
         self.root.mainloop()
 
 
 if __name__ == "__main__":
+    ensure_single_instance("deskpets", on_show_callback=_on_show_signal)
     app = DeskPetsApp()
     app.run()
