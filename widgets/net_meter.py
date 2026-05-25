@@ -1,4 +1,4 @@
-"""NetMeter - Upload/Download speed meter."""
+"""NetMeter - Upload/Download speed (compact taskbar mode)."""
 import tkinter as tk
 try:
     import psutil
@@ -23,11 +23,11 @@ class NetMeter(BaseWidget):
             self._last_recv = net.bytes_recv
             self._last_sent = net.bytes_sent
 
-        self.down_label = tk.Label(self.win, text="↓ 0 KB/s", bg=self.BG_COLOR, fg="#4fc3f7", font=self.FONT_LARGE, anchor="w")
-        self.down_label.pack(fill=tk.X, padx=8, pady=(6, 0))
-
-        self.up_label = tk.Label(self.win, text="↑ 0 KB/s", bg=self.BG_COLOR, fg="#81c784", font=self.FONT, anchor="w")
-        self.up_label.pack(fill=tk.X, padx=8, pady=(0, 6))
+        f = ("Segoe UI", 8)
+        self.down_l = tk.Label(self.win, text="↓ 0", bg=self.BG_COLOR, fg="#4fc3f7", font=f)
+        self.down_l.pack(side=tk.LEFT, padx=1)
+        self.up_l = tk.Label(self.win, text="↑ 0", bg=self.BG_COLOR, fg="#81c784", font=f)
+        self.up_l.pack(side=tk.LEFT, padx=1)
 
     def _update(self):
         if not psutil:
@@ -37,13 +37,12 @@ class NetMeter(BaseWidget):
         up = net.bytes_sent - self._last_sent
         self._last_recv = net.bytes_recv
         self._last_sent = net.bytes_sent
-
-        self.down_label.config(text=f"↓ {self._fmt(down)}/s")
-        self.up_label.config(text=f"↑ {self._fmt(up)}/s")
+        self.down_l.config(text=f"↓{self._fmt(down)}")
+        self.up_l.config(text=f"↑{self._fmt(up)}")
 
     def _fmt(self, b):
         if b > 1024 * 1024:
-            return f"{b / 1024 / 1024:.1f} MB"
+            return f"{b/1024/1024:.1f}M"
         if b > 1024:
-            return f"{b / 1024:.0f} KB"
-        return f"{b} B"
+            return f"{b/1024:.0f}K"
+        return f"{b}B"

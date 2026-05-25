@@ -45,10 +45,12 @@ class BaseWidget:
         self.dock_frame = dock_frame
 
         if dock_frame and self.DOCK_TO_BAR:
-            # Docked mode: embed in sidebar frame
-            self.win = tk.Frame(dock_frame, bg=self.BG_COLOR, highlightbackground="#333",
-                                highlightthickness=1)
-            self.win.pack(fill=tk.X, padx=2, pady=2)
+            # Docked mode: embed in taskbar overlay (horizontal)
+            self.win = tk.Frame(dock_frame, bg=self.BG_COLOR)
+            self.win.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 1))
+            # Add separator
+            sep = tk.Frame(dock_frame, bg="#444", width=1)
+            sep.pack(side=tk.LEFT, fill=tk.Y, padx=2)
             self._build()
             self._start_updates()
         else:

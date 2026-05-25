@@ -37,29 +37,45 @@ class DeskPetsApp:
         self._setup_tray()
 
     def _create_sidebar(self):
-        """Create a docked sidebar on the left edge of the screen."""
+        """Create a thin overlay that sits on top of the taskbar (left side)."""
         self.sidebar = tk.Toplevel(self.root)
         self.sidebar.overrideredirect(True)
         self.sidebar.attributes("-topmost", True)
-        self.sidebar.attributes("-alpha", 0.92)
-        self.sidebar.configure(bg="#1e1e1e")
+        self.sidebar.attributes("-alpha", 0.95)
+        self.sidebar.configure(bg="#202020")
 
-        # Position on left edge, vertically centered
+        # Detect screen size and taskbar dimensions
+        screen_w = self.root.winfo_screenwidth()
         screen_h = self.root.winfo_screenheight()
-        sidebar_h = 500
-        y_pos = (screen_h - sidebar_h) // 2
-        self.sidebar.geometry(f"190x{sidebar_h}+0+{y_pos}")
 
-        # Header
-        header = tk.Label(self.sidebar, text="🐾 DeskPets", bg="#1e1e1e", fg="#4fc3f7",
-                          font=("Segoe UI", 10, "bold"))
-        header.pack(fill=tk.X, pady=(6, 2))
+        # DPI scaling factor
+        try:
+            dpi = self.root.winfo_fpixels('1i')
+            scale = dpi / 96.0
+        except:
+            scale = 1.0
 
-        # Scrollable frame for widgets
-        self.bar_frame = tk.Frame(self.sidebar, bg="#1e1e1e")
-        self.bar_frame.pack(fill=tk.BOTH, expand=True, padx=2)
+        # Taskbar height on Win 11 is ~48px at 100% scale
+        taskbar_h = int(48 * scale)
+        bar_h = taskbar_h - 4  # slightly smaller to look embedded
 
-        self.sidebar.withdraw()  # Hidden until widgets are enabled
+        # Position: bottom of screen, offset from left (after Start button ~48px)
+        start_btn_w = int(48 * scale)
+        bar_w = min(int(screen_w * 0.45), 800)  # max 45% of screen or 800px
+        x_pos = start_btn_w
+        y_pos = screen_h - taskbar_h + 2  # sit on top of taskbar
+
+        self.sidebar.geometry(f"{bar_w}x{bar_h}+{x_pos}+{y_pos}")
+
+        # Store scale for widgets to use
+        self._scale = scale
+        self._bar_font_size = max(8, int(9 * scale))
+
+        # Horizontal frame for widgets
+        self.bar_frame = tk.Frame(self.sidebar, bg="#202020")
+        self.bar_frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=2)
+
+        self.sidebar.withdraw()
 
     def _build_ui(self):
         ttk.Label(self.root, text="🐾 DeskPets", font=("Segoe UI", 14, "bold")).pack(pady=(10, 5))

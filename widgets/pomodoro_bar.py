@@ -1,4 +1,4 @@
-"""PomodoroBar - Tiny pomodoro timer."""
+"""PomodoroBar - Tiny pomodoro timer (compact taskbar mode)."""
 import tkinter as tk
 
 from base import BaseWidget
@@ -16,17 +16,12 @@ class PomodoroBar(BaseWidget):
         self._seconds_left = 25 * 60
         self._is_break = False
 
-        frame = tk.Frame(self.win, bg=self.BG_COLOR)
-        frame.pack(fill=tk.BOTH, expand=True, padx=6, pady=6)
+        f = ("Segoe UI", 8)
+        self.time_l = tk.Label(self.win, text="⏱25:00", bg=self.BG_COLOR, fg="#e57373", font=("Segoe UI", 9, "bold"))
+        self.time_l.pack(side=tk.LEFT, padx=2)
 
-        self.time_label = tk.Label(frame, text="25:00", bg=self.BG_COLOR, fg="#e57373", font=("Segoe UI", 14, "bold"))
-        self.time_label.pack(side=tk.LEFT, padx=(0, 8))
-
-        self.status_label = tk.Label(frame, text="WORK", bg=self.BG_COLOR, fg="#e57373", font=self.FONT_SMALL)
-        self.status_label.pack(side=tk.LEFT)
-
-        self.btn = tk.Label(frame, text="▶", bg=self.BG_COLOR, fg=self.FG_COLOR, font=self.FONT_LARGE, cursor="hand2")
-        self.btn.pack(side=tk.RIGHT)
+        self.btn = tk.Label(self.win, text="▶", bg=self.BG_COLOR, fg=self.FG_COLOR, font=f, cursor="hand2")
+        self.btn.pack(side=tk.LEFT, padx=1)
         self.btn.bind("<Button-1>", self._toggle)
 
     def _toggle(self, event=None):
@@ -40,8 +35,8 @@ class PomodoroBar(BaseWidget):
                 self._is_break = not self._is_break
                 self._seconds_left = 5 * 60 if self._is_break else 25 * 60
                 color = "#81c784" if self._is_break else "#e57373"
-                self.status_label.config(text="BREAK" if self._is_break else "WORK", fg=color)
-                self.time_label.config(fg=color)
+                self.time_l.config(fg=color)
 
         mins, secs = divmod(self._seconds_left, 60)
-        self.time_label.config(text=f"{mins:02d}:{secs:02d}")
+        prefix = "☕" if self._is_break else "⏱"
+        self.time_l.config(text=f"{prefix}{mins:02d}:{secs:02d}")

@@ -1,4 +1,4 @@
-"""WeatherPeek - Current weather from wttr.in (no API key needed)."""
+"""WeatherPeek - Current weather (compact taskbar mode)."""
 import threading
 import tkinter as tk
 try:
@@ -14,34 +14,33 @@ class WeatherPeek(BaseWidget):
     DEFAULT_WIDTH = 180
     DEFAULT_HEIGHT = 70
     UPDATE_INTERVAL = 3600000
-    DOCK_TO_BAR = True  # every hour
+    DOCK_TO_BAR = True
 
     def _build(self):
-        self.city = self.config.get("weather_city", "")
-        self.temp_label = tk.Label(self.win, text="🌤 --°C", bg=self.BG_COLOR, fg=self.FG_COLOR, font=self.FONT_LARGE, anchor="w")
-        self.temp_label.pack(fill=tk.X, padx=8, pady=(6, 0))
-        self.desc_label = tk.Label(self.win, text="Loading...", bg=self.BG_COLOR, fg="#888", font=self.FONT_SMALL, anchor="w")
-        self.desc_label.pack(fill=tk.X, padx=8, pady=(0, 6))
+        self.city = ""
+        try:
+            from base import load_config
+            self.city = load_config().get("weather_city", "")
+        except:
+            pass
+
+        f = ("Segoe UI", 8)
+        self.weather_l = tk.Label(self.win, text="🌤 --°C", bg=self.BG_COLOR, fg=self.FG_COLOR, font=f)
+        self.weather_l.pack(side=tk.LEFT, padx=2)
 
     def _update(self):
         if not requests:
-            self.desc_label.config(text="pip install requests")
+            self.weather_l.config(text="🌤 no requests")
             return
         threading.Thread(target=self._fetch, daemon=True).start()
 
     def _fetch(self):
         try:
-            url = f"https://wttr.in/{self.city}?format=j1"
-            resp = requests.get(url, timeout=10)
+            resp = requests.get(f"https://wttr.in/{self.city}?format=j1", timeout=10)
             data = resp.json()
-            current = data["current_condition"][0]
-            temp = current["temp_C"]
-            desc = current["weatherDesc"][0]["value"]
-            feels = current["FeelsLikeC"]
-            self.win.after(0, lambda: self._show(temp, desc, feels))
-        except Exception:
-            self.win.after(0, lambda: self.desc_label.config(text="Failed to fetch"))
-
-    def _show(self, temp, desc, feels):
-        self.temp_label.config(text=f"🌤 {temp}°C (feels {feels}°C)")
-        self.desc_label.config(text=desc)
+            c = data["current_condition"][0]
+            temp = c["temp_C"]
+            desc = c["weatherDesc"][0]["value"]
+            self.win.after(0, lambda: self.weather_l.config(text=f"🌤 {temp}°C {desc}"))
+        except:
+            self.win.after(0, lambda: self.weather_l.config(text="🌤 --"))
