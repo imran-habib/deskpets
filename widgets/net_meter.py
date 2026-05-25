@@ -13,6 +13,7 @@ class NetMeter(BaseWidget):
     DEFAULT_WIDTH = 160
     DEFAULT_HEIGHT = 60
     UPDATE_INTERVAL = 1000
+    DOCK_TO_BAR = True
 
     def _build(self):
         self._last_recv = 0

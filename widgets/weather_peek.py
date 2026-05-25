@@ -13,7 +13,8 @@ class WeatherPeek(BaseWidget):
     NAME = "WeatherPeek"
     DEFAULT_WIDTH = 180
     DEFAULT_HEIGHT = 70
-    UPDATE_INTERVAL = 3600000  # every hour
+    UPDATE_INTERVAL = 3600000
+    DOCK_TO_BAR = True  # every hour
 
     def _build(self):
         self.city = self.config.get("weather_city", "")

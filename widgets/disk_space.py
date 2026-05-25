@@ -13,7 +13,8 @@ class DiskSpace(BaseWidget):
     NAME = "DiskSpace"
     DEFAULT_WIDTH = 180
     DEFAULT_HEIGHT = 100
-    UPDATE_INTERVAL = 30000  # every 30s
+    UPDATE_INTERVAL = 30000
+    DOCK_TO_BAR = True  # every 30s
 
     def _build(self):
         self.container = tk.Frame(self.win, bg=self.BG_COLOR)

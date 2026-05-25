@@ -39,19 +39,30 @@ class BaseWidget:
     FONT = ("Segoe UI", 9)
     FONT_SMALL = ("Segoe UI", 8)
     FONT_LARGE = ("Segoe UI", 12, "bold")
+    DOCK_TO_BAR = False  # If True, widget docks to left sidebar instead of floating
 
-    def __init__(self, master: Optional[tk.Tk] = None):
-        if master:
-            self.win = tk.Toplevel(master)
+    def __init__(self, master: Optional[tk.Tk] = None, dock_frame: Optional[tk.Frame] = None):
+        self.dock_frame = dock_frame
+
+        if dock_frame and self.DOCK_TO_BAR:
+            # Docked mode: embed in sidebar frame
+            self.win = tk.Frame(dock_frame, bg=self.BG_COLOR, highlightbackground="#333",
+                                highlightthickness=1)
+            self.win.pack(fill=tk.X, padx=2, pady=2)
+            self._build()
+            self._start_updates()
         else:
-            self.win = tk.Tk()
-
-        self.config = load_config()
-        self._setup_window()
-        self._drag_data = {"x": 0, "y": 0}
-        self._build()
-        self._enable_drag()
-        self._start_updates()
+            # Floating mode
+            if master:
+                self.win = tk.Toplevel(master)
+            else:
+                self.win = tk.Tk()
+            self.config = load_config()
+            self._drag_data = {"x": 0, "y": 0}
+            self._setup_window()
+            self._build()
+            self._enable_drag()
+            self._start_updates()
 
     def _setup_window(self):
         self.win.overrideredirect(True)  # No title bar/border
@@ -113,4 +124,7 @@ class BaseWidget:
         self.win.after(self.UPDATE_INTERVAL, self._start_updates)
 
     def close(self):
-        self.win.destroy()
+        if self.dock_frame and self.DOCK_TO_BAR:
+            self.win.destroy()
+        else:
+            self.win.destroy()

@@ -31,9 +31,35 @@ class DeskPetsApp:
         self._active_widgets = {}
         self._vars = {}
 
+        self._create_sidebar()
         self._build_ui()
         self._launch_enabled()
         self._setup_tray()
+
+    def _create_sidebar(self):
+        """Create a docked sidebar on the left edge of the screen."""
+        self.sidebar = tk.Toplevel(self.root)
+        self.sidebar.overrideredirect(True)
+        self.sidebar.attributes("-topmost", True)
+        self.sidebar.attributes("-alpha", 0.92)
+        self.sidebar.configure(bg="#1e1e1e")
+
+        # Position on left edge, vertically centered
+        screen_h = self.root.winfo_screenheight()
+        sidebar_h = 500
+        y_pos = (screen_h - sidebar_h) // 2
+        self.sidebar.geometry(f"190x{sidebar_h}+0+{y_pos}")
+
+        # Header
+        header = tk.Label(self.sidebar, text="🐾 DeskPets", bg="#1e1e1e", fg="#4fc3f7",
+                          font=("Segoe UI", 10, "bold"))
+        header.pack(fill=tk.X, pady=(6, 2))
+
+        # Scrollable frame for widgets
+        self.bar_frame = tk.Frame(self.sidebar, bg="#1e1e1e")
+        self.bar_frame.pack(fill=tk.BOTH, expand=True, padx=2)
+
+        self.sidebar.withdraw()  # Hidden until widgets are enabled
 
     def _build_ui(self):
         ttk.Label(self.root, text="🐾 DeskPets", font=("Segoe UI", 14, "bold")).pack(pady=(10, 5))
@@ -83,13 +109,21 @@ class DeskPetsApp:
         if name in self._active_widgets:
             return
         widget_class = ALL_WIDGETS[name]
-        widget = widget_class(master=self.root)
+        if widget_class.DOCK_TO_BAR:
+            widget = widget_class(master=self.root, dock_frame=self.bar_frame)
+            self.sidebar.deiconify()  # Show sidebar when bar widgets are active
+        else:
+            widget = widget_class(master=self.root)
         self._active_widgets[name] = widget
 
     def _stop_widget(self, name):
         if name in self._active_widgets:
             self._active_widgets[name].close()
             del self._active_widgets[name]
+        # Hide sidebar if no bar widgets active
+        has_bar = any(ALL_WIDGETS[n].DOCK_TO_BAR for n in self._active_widgets)
+        if not has_bar:
+            self.sidebar.withdraw()
 
     def _launch_enabled(self):
         for name in self.config.get("enabled_widgets", []):

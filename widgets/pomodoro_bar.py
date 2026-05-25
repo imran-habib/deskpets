@@ -9,6 +9,7 @@ class PomodoroBar(BaseWidget):
     DEFAULT_WIDTH = 180
     DEFAULT_HEIGHT = 50
     UPDATE_INTERVAL = 1000
+    DOCK_TO_BAR = True
 
     def _build(self):
         self._running = False

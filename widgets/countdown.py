@@ -11,7 +11,8 @@ class CountdownWidget(BaseWidget):
     NAME = "Countdown"
     DEFAULT_WIDTH = 200
     DEFAULT_HEIGHT = 80
-    UPDATE_INTERVAL = 60000  # every minute
+    UPDATE_INTERVAL = 60000
+    DOCK_TO_BAR = True  # every minute
     EVENTS_FILE = os.path.join(CONFIG_DIR, "countdowns.json")
 
     def _build(self):

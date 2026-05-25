@@ -13,6 +13,7 @@ class CPUPulse(BaseWidget):
     DEFAULT_WIDTH = 180
     DEFAULT_HEIGHT = 90
     UPDATE_INTERVAL = 2000
+    DOCK_TO_BAR = True
 
     def _build(self):
         self.cpu_label = tk.Label(self.win, text="CPU: --", bg=self.BG_COLOR, fg=self.FG_COLOR, font=self.FONT, anchor="w")
