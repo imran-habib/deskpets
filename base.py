@@ -48,9 +48,8 @@ class BaseWidget:
             # Docked mode: embed in taskbar overlay (horizontal)
             self.win = tk.Frame(dock_frame, bg=self.BG_COLOR)
             self.win.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 1))
-            # Add separator
-            sep = tk.Frame(dock_frame, bg="#444", width=1)
-            sep.pack(side=tk.LEFT, fill=tk.Y, padx=2)
+            self._sep = tk.Frame(dock_frame, bg="#444", width=1)
+            self._sep.pack(side=tk.LEFT, fill=tk.Y, padx=2)
             self._build()
             self._start_updates()
         else:
@@ -126,7 +125,6 @@ class BaseWidget:
         self.win.after(self.UPDATE_INTERVAL, self._start_updates)
 
     def close(self):
-        if self.dock_frame and self.DOCK_TO_BAR:
-            self.win.destroy()
-        else:
-            self.win.destroy()
+        if hasattr(self, '_sep') and self._sep:
+            self._sep.destroy()
+        self.win.destroy()

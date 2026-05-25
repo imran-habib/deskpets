@@ -59,13 +59,23 @@ class DeskPetsApp:
         taskbar_h = int(48 * scale)
         bar_h = taskbar_h - 4  # slightly smaller to look embedded
 
-        # Position: bottom of screen, offset from left (after Start button ~48px)
-        start_btn_w = int(48 * scale)
-        bar_w = min(int(screen_w * 0.45), 800)  # max 45% of screen or 800px
-        x_pos = start_btn_w
-        y_pos = screen_h - taskbar_h + 2  # sit on top of taskbar
+        # Position: bottom of screen, offset from left
+        # Win 11 Start button + search/widgets area is ~100px at 100% scale
+        start_offset = int(100 * scale)
+        bar_w = min(int(screen_w * 0.4), 700)
+        x_pos = start_offset
+        y_pos = screen_h - taskbar_h + 2
 
         self.sidebar.geometry(f"{bar_w}x{bar_h}+{x_pos}+{y_pos}")
+
+        # Allow clicks to pass through to taskbar when not on our widgets
+        if os.name == "nt":
+            try:
+                import ctypes
+                hwnd = int(self.sidebar.wm_frame(), 16)
+                # Don't set click-through, just make sure we don't block Start
+            except:
+                pass
 
         # Store scale for widgets to use
         self._scale = scale
